@@ -22,3 +22,41 @@ def iterlog(it, stringifier=str, **kwargs):
     for i in it:
         warning(stringifier(i), **kwargs)
         yield i
+
+
+def iterjoin(join_it, its):
+    """Joins iterators similarly to str.join.
+    
+    >>> list(iterjoin('', ('one', 'two')))
+    ['o', 'n', 'e', 't', 'w', 'o']
+    >>> ''.join(iterjoin('_', ('^', '', '^')))
+    '^__^'
+    >>> list(iterjoin((10, ), [(1, 2, 3), (4, 5, 6)]))
+    [1, 2, 3, 10, 4, 5, 6]
+    >>> list(iterjoin('_', ''))
+    []
+    """
+    from itertools import chain, izip, repeat
+    its = iter(its)
+    join_tuple = tuple(join_it)
+
+    # # This is the 'conventional' version using for and yield.
+    # # It works but is theoretically slower.
+    # for i in its.next():
+    #     yield i
+    # for it in its:
+    #     for i in join_it:
+    #         yield i
+    #     for i in it:
+    #         yield i
+
+    try:
+        its_first = its.next()
+    except StopIteration:
+        # This is the case where `its` is initially empty.
+        return iter(())
+
+    its_after_first = chain.from_iterable(izip(repeat(join_tuple), its))
+    joined_its = chain((its_first,), its_after_first)
+    iterated_joined_its = chain.from_iterable(joined_its)
+    return iterated_joined_its
