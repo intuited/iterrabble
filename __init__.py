@@ -60,3 +60,29 @@ def iterjoin(join_it, its):
     joined_its = chain((its_first,), its_after_first)
     iterated_joined_its = chain.from_iterable(joined_its)
     return iterated_joined_its
+
+
+def takemax(it, max):
+    """Yields a maximum of `max` elements from the iterable `it`.
+    
+    >>> list(takemax(xrange(4), 2))
+    [0, 1]
+    >>> list(takemax(xrange(4), 20))
+    [0, 1, 2, 3]
+    >>> list(takemax(xrange(0), 20))
+    []
+    >>> list(takemax(xrange(20), 0))
+    []
+    """
+    from itertools import count
+    # If a compose function were available, this could be implemented with
+    #   something like
+    #       length_counter = count()
+    #       takewhile(compose(operator.lt, length_counter.next), it)
+    #   but it's necessary to drop
+    #   the parameter supplied by `itertools.takewhile`
+    #   so that it doesn't make it through to next.
+    it = iter(it)
+    c = count()
+    while c.next() < max:
+        yield it.next()
