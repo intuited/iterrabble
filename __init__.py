@@ -86,3 +86,18 @@ def takemax(it, max):
     c = count()
     while c.next() < max:
         yield it.next()
+
+class odometer(object):
+    """Tracks the count and total size of yields from the wrapped iterable.
+
+    Only makes sense around iterables like files which yield sequences.
+    """
+    def __init__(self, source):
+        self.bytes_read = 0
+        self.read_count = 0
+        self.source = iter(source)
+    def next(self):
+        chunk = self.source.next()
+        self.bytes_read += len(chunk)
+        self.read_count += 1
+        return chunk
