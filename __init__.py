@@ -96,8 +96,12 @@ class odometer(object):
         self.bytes_read = 0
         self.read_count = 0
         self.source = iter(source)
+    def __iter__(self):
+        return self
     def next(self):
         chunk = self.source.next()
         self.bytes_read += len(chunk)
         self.read_count += 1
         return chunk
+    def __getattr__(self, attr):
+        return self.source.__getattr__(attr)
