@@ -1,4 +1,5 @@
 """Various iterable-related boons."""
+import collections
 
 def iterlog(it, stringifier=str, **kwargs):
     """Log iterable elements as they pass through this node.
@@ -87,17 +88,46 @@ def takemax(it, max):
     while c.next() < max:
         yield it.next()
 
-class odometer(object):
-    """Tracks the count and total size of yields from the wrapped iterable.
+class odometer(collections.Iterator):
+    r"""Tracks the count and total size of yields from the wrapped iterable.
 
-    Only makes sense around iterables like files which yield sequences.
+    Only works when wrapping iterables like files which yield sequences.
+
+    >>> it = iter(["four", "six666", "ten10ten10"])
+    >>> odo = odometer(it)
+    >>> (odo.bytes_read, odo.read_count)
+    (0, 0)
+    >>> odo.next()
+    'four'
+    >>> (odo.bytes_read, odo.read_count)
+    (4, 1)
+    >>> it.next() # this does not count towards the odometer reading
+    'six666'
+    >>> (odo.bytes_read, odo.read_count)
+    (4, 1)
+    >>> odo.next()
+    'ten10ten10'
+    >>> (odo.bytes_read, odo.read_count)
+    (14, 2)
+    >>> import StringIO
+    >>> stringfile = StringIO.StringIO("four\nsix666\nten10ten10")
+    >>> stringfile = odometer(stringfile)
+    >>> for line in stringfile:
+    ...     print line.rstrip()
+    four
+    six666
+    ten10ten10
+    >>> (stringfile.bytes_read, stringfile.read_count) # The two '\n's count
+    (22, 3)
     """
     def __init__(self, source):
+        """Initialize the object.
+
+        `source` must be an iterable which yields sequences.
+        """
         self.bytes_read = 0
         self.read_count = 0
         self.source = iter(source)
-    def __iter__(self):
-        return self
     def next(self):
         chunk = self.source.next()
         self.bytes_read += len(chunk)
