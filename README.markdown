@@ -27,6 +27,13 @@ Only makes sense around iterables like files which yield sequences.
 There is more detail provided in the source,
 mainly in the form of doctests.
 
+## Considered improvements
+
+    - It may be possible to improve `odometer`
+      such that it replaces the `next` method of its wrapped iterator.
+      This would enable it to track iteration
+      even when the odometer object is not being accessed.
+
 ## State
 
 Some function docstrings should explain their variables better.
